@@ -1,0 +1,320 @@
+\documentclass[red]{beamer}
+
+%\usepackage{includegraphics}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[text line]{%
+\parbox{\linewidth}{\vspace*{-8pt}\insertdate\hfill\insertshortauthor{}% (\insertinstitute) 
+  \hfill\insertpagenumber}}
+
+\author{Fabian Greimel}
+\title{The Credit-Anstalt Crisis of 1931}
+%\institute{U Mannheim}
+
+\begin{document}
+
+\frame[plain]{\maketitle}
+
+<<setup, include=FALSE>>=
+knitr::opts_chunk$set(echo = FALSE, fig.width=4, fig.height=3.5, out.width = "0.8\\linewidth", cache=TRUE)
+library(ggplot2)
+library(reshape2)
+@
+
+<<loadmaps, echo=FALSE, warning=FALSE, cache=TRUE, dependson="maps.R", include=FALSE>>=
+
+source("maps.R") 
+map_1914 = read_map("Historic/cntry1914.shp")
+map_1920 = read_map("Historic/cntry1920.shp")
+
+sub_1914 = map_1914[NAME == "Austro-Hungarian Empire"] 
+sub_1920 = map_1920[NAME == "Austria"] 
+
+early_AUT = get_early_austrian_data()
+x = 6
+@
+
+
+\begin{frame}{Credit-Anstalt: A big bank in a small country}
+\begin{columns}
+\begin{column}{0.5\linewidth}
+  \begin{itemize}
+  \item ``Biggest bank west of Germany''
+    \item first continental European bank listed at NYSE (1927)
+  %% \item ``it had probably no rival in the world in respect of the number
+  %% and importance of its foreign relationships'' (\emph{Wall Street
+  %%   Journal}, June 23, 1931)
+  \item excellent reputation (president Louis Rothschild) 
+  \end{itemize}
+\begin{quote}``From the moment of its birth the Credit-Anstalt of Vienna
+      stood in the forefront of international finance.'' \end{quote} 
+    \small \emph{The
+        Economist}, June 27, 1931\footnotemark{}
+
+\end{column}
+\begin{column}{0.5\linewidth}
+  \structure{Europe in 1920}
+<<map2, echo=FALSE, cache=TRUE, warning=F, dependson="loadmaps", fig.width=4, fig.height=4, out.width="\\linewidth", dev='tikz'>>=
+plot_europe(map_1920[NAME != "Austria"]) + 
+  geom_map(data = sub_1920, map = sub_1920, aes(x=long, y=lat, map_id=id, fill=NAME, alpha=0.5))
+@
+\end{column}
+
+\end{columns}
+\footnotetext{cited in Schubert (1991)}
+\end{frame}
+
+
+\begin{frame}{A big bank in a small country \dots that used to be bigger}
+\begin{columns}
+\begin{column}{0.5\linewidth}
+  \structure{Europe in 1914}
+<<map1, echo=FALSE, cache=TRUE, warning=F, dependson="loadmaps", fig.width=4, fig.height=4, out.width="\\linewidth", dev='tikz'>>=
+plot_europe(map_1914[NAME != "Austro-Hungarian Empire"]) +  geom_map(data = sub_1914, map = sub_1914, aes(x=long, y=lat, map_id=id, fill=NAME, alpha=0.5)) 
+@
+\end{column}
+\begin{column}{0.5\linewidth}
+  \structure{Europe in 1920}
+<<map2, warning=F,  fig.width=4, fig.height=4, cache=T, out.width="\\linewidth", dev='tikz'>>=
+@ 
+\end{column}
+\end{columns}
+\medskip 
+ 53 million \hfill \structure{Population} \hfill 6.5 million
+
+\end{frame}
+
+<<names, include=F, dependson="loadmaps">>=
+library(reshape2)
+library(data.table)
+setnames(early_AUT, old = c("BNP-Wachstum", "BNP-Preis-Wachstum", "unemp", "Jahr"), c("GNP growth", "inflation", "unemployment", "year"))
+early_AUT
+x = 7
+@
+
+\begin{frame}
+  \frametitle{Credit-Anstalt's business}
+  \begin{itemize}
+  \item stakes in 40 businesses and eleven banks in successor states
+  \item bigger than all other Austrian banks combined
+    %held 53 \% of balance sheet of all Austrian joint stock banks
+  \item ``Hausbank'' of 69 \% of Austrian limited liability companies (\emph{Ges.m.b.H})
+    %did their business through CA
+  %\item 14 \% were deeply indebted
+%  \item  Its business interests extended into eleven banks and forty industrial enterprises in the so called Successor States
+  \end{itemize}
+\end{frame}
+
+% businesses do almost all of their financing through one bank
+% GmbH main legal form
+
+\begin{frame}{War, Hyperinflation,  Depression, War}
+\begin{columns}
+ \begin{column}{0.5\linewidth}
+ 
+ \includegraphics[width=\linewidth]{Hyperinflation_Austria.pdf}
+
+\begin{itemize}
+\item Cost of living increased hundred-fold within 13 months
+\end{itemize}
+
+\end{column}
+
+\begin{column}{0.5\linewidth}
+<<econ_plot, warning=FALSE, fig.width=4, fig.height=3.5, out.width="\\linewidth", fig.pos="T", dev='tikz', dependson=c("loadmaps", "names")>>=
+## Plot GDP growth, inflation and umployment
+ plot1 = melt(early_AUT, measure.vars = c("GNP growth", "inflation", "unemployment"))
+ p = ggplot(subset(plot1, year>1920 & year < 1940), aes(x=year, y=value/10, color=variable)) + geom_line() + theme(legend.position = "top") + geom_point() + scale_x_continuous(breaks = seq(1913, 1940, by=2)) + guides(color=guide_legend(title=NULL)) + xlab(NULL) + ylab(NULL) #+  geom_hline(yintercept = 0, linetype="solid", color="red", alpha=0.2)
+
+## annotating Credit-Anstalt
+p2 = p + geom_vline(xintercept = (1931+5/12), linetype="longdash", alpha=0.5)+
+  annotate("text", hjust=-0.1, vjust=-0.4, x = 1931+5/12, y = 10.5, label = "Collapse of Credit-Anstalt", size=2) +
+  annotate("segment", x = 1932.5, xend = 1931+6/12, y = 10.5, yend = 9, size=.2, arrow=arrow(length=unit(.1,"cm"))) 
+## annotating BCA-crash
+cBCA = 1929+10/12
+p3 = p2 + geom_vline(xintercept = cBCA, linetype="longdash", alpha=0.5)+
+  annotate("text", hjust=1.1, vjust=-0.4, x = cBCA, y = 14.5, label = "Collapse of BCA", size=2) +
+  annotate("segment", x = cBCA-0.7, xend = cBCA-0.1, y = 14.5, yend = 12, size=.2, arrow=arrow(length=unit(.1,"cm"))) 
+ fasc = 1933+3/12
+p + annotate("rect", xmin = fasc, xmax = Inf, ymin = -Inf, ymax = Inf,
+  alpha = .2) + annotate("text", hjust=-0.5, x = fasc, y = 9.5, label = 'Fascist regime', size=2)
+
+@
+ \begin{itemize}
+ \item unemployment rate tripled
+ \item deep recession 1930--33
+ \end{itemize}
+ \end{column}
+ \end{columns}
+\medskip
+\tiny
+Sources: Left: Kernbauer (1991), Right: Austrian Institute for Economic Research (1965)
+
+\end{frame}
+
+\begin{frame}{The failure of the Austrian banking sector}
+\begin{columns}
+  \begin{column}{0.4\linewidth}
+\begin{itemize}
+\item bad management
+\begin{itemize}
+\item high wages
+\item high dividends
+\end{itemize}
+\item bad policies
+\begin{itemize}
+\item concentration, consolidation
+\end{itemize}
+   \item bad economics
+   \begin{itemize}
+\item collapse of exports
+\item high unemployment
+\end{itemize}
+ \end{itemize}
+ \end{column}
+ \begin{column}{0.6\linewidth}
+
+   \only<1>{\begin{table}
+       \begin{tabular}{ccc}
+       year & $\frac{\text{wages}}{\text{assets}} $ & assets\\ \hline
+        1913 & 0.75 \% &   \\
+       1924 & 6.7 \% & -70 \% 
+     \end{tabular}
+     \caption{Austrian banks}
+   \end{table}
+   }
+      \only<3>{
+<<exports,warning=FALSE, fig.width=4, fig.height=3.5, out.width="\\linewidth", fig.pos="T", dev='tikz', fig.cap="Decomposition of Austrian GNP", dependson="names">>=
+## Plot decomposition of GDP
+plot2 = melt(early_AUT, measure.var = c("C", "G", "I",  "EX", "IM"))
+plot2$variable <- factor(plot2$variable, levels = levels(plot2$variable)[5:1])
+
+p_dec = ggplot(subset(plot2, year>1920 & year < 1940), aes(x=year, y=value)) + 
+  geom_area(aes(fill=variable)) + theme(legend.position = "top") + scale_x_continuous(breaks = seq(1913, 1940, by=2)) + guides(fill=guide_legend(title=NULL)) + xlab(NULL) + ylab(NULL)
+
+y = 700
+p_2 = p_dec +  geom_vline(xintercept = (1931+5/12), linetype="longdash", alpha=0.5) +
+  annotate("text", hjust=-0.1, vjust=-0.4, x = 1931+5/12, y = y, label = "Collapse of Credit-Anstalt", size=2) +
+  annotate("segment", x = 1932.5, xend = 1931+6/12, y = y, yend = 0.6 * y, size=.2, arrow=arrow(length=unit(.1,"cm"))) 
+## annotating BCA-crash
+cBCA = 1929+10/12
+p_2 +  geom_vline(xintercept = cBCA, linetype="longdash", alpha=0.5)+
+  annotate("text", hjust=1.1, x = cBCA, vjust=-0.4, y = y, label = "Collapse of BCA", size=2) +
+  annotate("segment", x = cBCA-0.7, xend = cBCA-0.1, y = y, yend = 0.6 * y, size=.2, arrow=arrow(length=unit(.1,"cm"))) 
+
+@
+
+   }
+
+   \only<2>{
+<<warning=FALSE, fig.width=4, fig.height=3.5, out.width="\\linewidth", fig.pos="T", dev='tikz', dependson=c("loadmaps", "names", "econ_plot")>>=
+cons_from = 1926 -0.5
+cons_to = 1927 + 0.5
+p3 + annotate("rect", xmin = cons_from, xmax = cons_to, ymin = -Inf, ymax = Inf,
+  alpha = .2) + annotate("text", x = (cons_from + cons_to)/2, y = 9.5, label = 'mergers and deaths\n\\# banks $76 \\searrow 31$', size=2)
+
+@ 
+   }
+   \end{column}
+ \end{columns}
+\end{frame}
+
+
+%% \begin{frame}{Collapse of Credit-Anstalt}
+%% % \item losses worth \Sexpr{round(140/165,2)} \% of bank equity, 7 \%
+%%   % of 
+%%  \end{frame}
+ 
+<<bs-plot, eval=T, include=F>>=
+
+loss30 = 140
+assets30 = 140/0.075
+equity30 = 140/0.85
+liabs30 = assets30 - equity30
+leverage30 = assets30/equity30
+500/liabs30
+liabs30
+budget30 = 1200
+
+## -30 % of deposits within 2 weeks
+library(data.table)
+library(ggplot2)
+assets30
+trueloss = 1070
+year = c(rep(1930))
+flag = c("before", "official (May 1931)", "actual")
+flag = factor(flag, ordered = F, levels = flag)
+
+asset = c(assets30, assets30 - loss30, assets30 - trueloss)
+liab = c(liabs30, liabs30, liabs30)
+netw = c(equity30, equity30 - loss30, equity30 - trueloss )
+DT = data.table(flag = flag, time = year, assets = asset, liabs = liab, networth = netw)
+DT[, liab_ANB := 471] ## Kernbauer p 298
+DT[, liab_foreign := 500]
+DT[, liab_other := liabs - liab_ANB - liab_foreign]
+DT[, .(flag, time, liab_ANB, liab_foreign, liab_other)]
+DT_liab = melt(DT[, .(flag, time, liab_ANB, liab_foreign, liab_other)], measure.vars = c("liab_ANB", "liab_foreign", "liab_other"), variable.name="liab_type")
+DT_liab[, variable := "liabilities"]
+DT_assets = melt(DT[,.(flag, time, assets)], measure.vars="assets")
+DT_assets[, liab_type := "assets"]
+
+bs1 = rbind(DT_liab, DT_assets)
+levels(bs1$liab_type) = c("ANB (May 1931)", "foreign (June 1931)", "other", "assets")
+bs1[, variable := relevel(variable, "assets")]
+
+p_empty = ggplot(bs1, aes(x = variable, y = value)) + geom_bar(stat="identity", aes(fill=liab_type), alpha=0) + facet_wrap(~flag) + xlab(NULL) + ylab("value in million Schillings") + guides(fill=guide_legend(title=NULL)) + theme(legend.position="top")
+
+p1 = p_empty + geom_bar(data=bs1[flag=="before",], aes(x=variable, y=value), stat="identity")
+p2 = p1 + geom_bar(data=bs1[flag!="actual",], aes(x=variable, y=value), stat="identity")
+p3 = p2 + geom_bar(data=bs1, aes(x=variable, y=value), stat="identity")
+p4 = p2 + geom_bar(data=bs1[flag=="actual",], aes(x=variable, y=value, fill=liab_type), stat="identity")
+@ 
+
+\begin{frame}{Credit-Anstalt's balance sheet of May 1931}
+  \begin{figure}
+  \only<1>{
+<<dependson="bs-plot", dev="tikz", out.width="\\linewidth", fig.height=3, fig.width=5>>=
+p1
+@ 
+}
+\only<2>{
+<<dependson="bs-plot", dev="tikz", out.width="\\linewidth", fig.height=3, fig.width=5>>=
+p2
+@ 
+}
+\only<3>{
+<<dependson="bs-plot", dev="tikz", out.width="\\linewidth", fig.height=3, fig.width=5>>=
+p3
+@ 
+}
+\only<4>{
+<<dependson="bs-plot", dev="tikz", out.width="\\linewidth", fig.height=3, fig.width=5>>=
+p4
+@ 
+}
+\end{figure}
+\tiny Sources: Kernbauer (1991, pp. 291, 298, 300), Schubert (1991, p. 7)
+% CA's debt at ANB Kerbauer p. 298
+% CA's debt abroad Kernbauer p. 300
+% CA's losses & networt: Kernbauer p. 291
+% CA's losses, % of assets, networth Schubert p.7
+\end{frame}
+
+\begin{frame}{The collapse of Credit-Anstalt}
+  \begin{itemize}
+ \item injections by state, national bank, Rothschilds
+ \item stock holders lose 25 \% (too little?)
+ \item 4-day run on Credit-Anstalt, lose 24 \% of deposits within a month
+ \item government assumed liabilities worth ATS 1.2 billion, (federal
+   budget was 2 billion)
+ \item resolution took another year (political reasons)
+  \item Credit-Anstalt is part of Uni-Credit today
+  \end{itemize}
+
+  \structure{Bank runs everywhere}
+\begin{itemize}
+\item runs in Germany, Hungary, Czechoslovakia,
+  Romania, Poland
+\end{itemize}
+\end{frame}
+
+\end{document}
