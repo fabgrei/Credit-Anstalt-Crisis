@@ -28,3 +28,8 @@ Within the fifteen years after World War 1 the number of joint stock banks in Au
 
 ## The collapse of Credit-Anstalt
 
+In May 1931 the Credit-Anstalt announced losses worth 85 % of its equity. Given the reputation of the bank that came as a shock to the debtors, creditors, politiciains and the public. The losses became public only after the bank's new management insisted on a revisal of the balance sheet. Right after the announcement rumours started to circulate, which said that the actual losses are much higher than claimed. So despite the state's commitment to bail out the bank, there was a run on CA's deposits. In the next four days the bank extended their business hours. Within a month they lost about 25 % of their deposits. Right afterwards, bank runs took place in Germany, Poland, Hungary and Czechoslovakia. 
+
+As it turned out later, the rumors were right. The losses of the bank were seven times bigger than announced, amounting to almost half the banks assets. The government and the national bank negotiated with foreign creditors to roll over their credits for two years. In return the government took responsibility for the remaining liabilities of 1.2 billion Schillings (when the annual federal budget was just 1.8 billion.)
+
+It took a year until the bank's collapse was resolved. On the way, the Austrian government and its currency lost most of their reputation.
